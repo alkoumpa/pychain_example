@@ -1,0 +1,5 @@
+local/score_kaldi_wer.sh data/dev_clean_2 data/graph/monophone/graph_tgsmall exp/tdnn_monophone/decode/dev_clean_2/tglarge
+local/score_kaldi_wer.sh: scoring with word insertion penalty=0.0,0.5,1.0
+Best WER for dev_clean_2 with tglarge:
+%WER 27.36 [ 5509 / 20138, 419 ins, 1056 del, 4034 sub ] exp/tdnn_monophone/decode/dev_clean_2/tglarge/wer_10_0.0
+
