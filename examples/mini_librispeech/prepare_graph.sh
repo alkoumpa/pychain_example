@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 
 set -e -o pipefail
+# set -o xtrace
 
 stage=0
 train_set=train_clean_5
@@ -24,24 +25,26 @@ nj=10
 
 lang=$langdir/lang_${type}${unit}_e2e
 graph=$graphdir/${type}${unit}
+[ ! -d $langdir ] && mkdir $langdir
 
 if [ $stage -le 0 ]; then
   echo "$0: Stage 0: Phone LM estimating"
   rm -rf $lang
-  cp -r $langdir/lang_nosp $lang
+  cp -r $rootdir/lang_nosp $lang
   silphonelist=$(cat $lang/phones/silence.csl) || exit 1;
   nonsilphonelist=$(cat $lang/phones/nonsilence.csl) || exit 1;
   # Use our special topology... note that later on may have to tune this
   # topology.
   steps/nnet3/chain/gen_topo.py $nonsilphonelist $silphonelist >$lang/topo
 
+
   echo "Estimating a phone language model for the denominator graph..."
   mkdir -p $graph/log
   $train_cmd $graph/log/make_phone_lm.log \
              cat $rootdir/$train_set/text \| \
              steps/nnet3/chain/e2e/text_to_phones.py --between-silprob 0.1 \
-             $langdir/lang_nosp \| \
-             utils/sym2int.pl -f 2- $langdir/lang_nosp/phones.txt \| \
+             $rootdir/lang_nosp \| \
+             utils/sym2int.pl -f 2- $rootdir/lang_nosp/phones.txt \| \
              chain-est-phone-lm --num-extra-lm-states=2000 \
              ark:- $graph/phone_lm.fst
 fi
@@ -87,8 +90,9 @@ fi
 if [ $stage -le 3 ]; then
   echo "Making HCLG full graph..."
   utils/lang/check_phones_compatible.sh \
-    $langdir/lang_nosp_test_tgsmall/phones.txt $lang/phones.txt
+    $rootdir/lang_nosp_test_tgsmall/phones.txt $lang/phones.txt
+
   utils/mkgraph.sh \
-    --self-loop-scale 1.0 $langdir/lang_nosp_test_tgsmall \
+    --self-loop-scale 1.0 $rootdir/lang_nosp_test_tgsmall \
     $graph $graph/graph_tgsmall || exit 1;
 fi

@@ -36,9 +36,9 @@ valid_feat_dir=${dumpdir}/${valid_set}; mkdir -p ${valid_feat_dir}
 
 if [ ${stage} -le 1 ]; then
   echo "Dumping Features with CMVN"
-  dump.sh --cmd "$train_cmd" --nj 32 --do_delta $do_delta \
+  local/dump.sh --cmd "$train_cmd" --nj 32 --do_delta $do_delta \
     $rootdir/${train_set}/feats.scp $rootdir/${train_set}/cmvn.ark ${train_feat_dir}/log ${train_feat_dir}
-  dump.sh --cmd "$train_cmd" --nj 4 --do_delta $do_delta \
+  local/dump.sh --cmd "$train_cmd" --nj 4 --do_delta $do_delta \
     $rootdir/${valid_set}/feats.scp $rootdir/${valid_set}/cmvn.ark ${valid_feat_dir}/log ${valid_feat_dir}
 
 fi

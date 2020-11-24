@@ -111,14 +111,14 @@ if [ ${stage} -le 4 ]; then
   valid_utt2num_frames=$dumpdir/$valid_set/utt2num_frames
 
   
-  asr_prep_json.py --wav-files $train_wav \
+  local/asr_prep_json.py --wav-files $train_wav \
 		   --dur-files $train_dur \
 		   --feat-files $train_feat \
 		   --numerator-fst-files $train_fst \
 		   --text-files $train_text \
 		   --num-frames-files $train_utt2num_frames \
 		   --output data/train_${type}${unit}.json
-  asr_prep_json.py --wav-files $valid_wav \
+  local/asr_prep_json.py --wav-files $valid_wav \
 		   --dur-files $valid_dur \
 		   --feat-files $valid_feat \
 		   --numerator-fst-files $valid_fst \
@@ -134,7 +134,7 @@ if [ ${stage} -le 5 ]; then
   opts=""
   mkdir -p $dir/logs
   log_file=$dir/logs/train.log
-  python3 train.py
+  python3 ../../train.py \
     --train data/train_${type}${unit}.json \
     --valid data/valid_${type}${unit}.json \
     --den-fst $graph/normalization.fst \
@@ -179,8 +179,8 @@ fi
 
 if [  $stage -le 8 ]; then
   echo "Stage 8: Forthgram LM rescoring"
-  oldlang=$langdir/lang_nosp_test_tgsmall
-  newlang=$langdir/lang_nosp_test_tglarge
+  oldlang=$rootdir/lang_nosp_test_tgsmall
+  newlang=$rootdir/lang_nosp_test_tglarge
   oldlm=$oldlang/G.fst
   newlm=$newlang/G.carpa
   oldlmcommand="fstproject --project_output=true $oldlm |"
